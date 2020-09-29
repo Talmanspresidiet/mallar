@@ -1,0 +1,18 @@
+\RequirePackage{alphalph,etoolbox}
+\RequirePackage{enumitem}
+\RequirePackage{pdfpages}
+\RequirePackage[depth=2]{bookmark}
+
+\def\enumAlphAlph#1{\expandafter\@enumAlphAlph\csname c@#1\endcsname}
+\def\@enumAlphAlph#1{\AlphAlph#1}
+\AddEnumerateCounter{\enumAlphAlph}{\@enumAlphAlph}{MM}
+\newlist{bilagor}{enumerate}{1}
+\setlist[bilagor]{label=\enumAlphAlph*,before={\newpage\bookmark[startatroot,page=\thepage]{Bilagor}\section*{\thebilagor}}}
+
+\gappto{\endbilagor}{\newpage}
+\newcommand{\@bilaga}[2][pages=-]{%
+  \gappto\endbilagor{\includepdf[link,#1]{#2}}%
+}
+\newcommand\bilaga[3][pages=-]{\item\bookmark[level=2,dest={bilagor/#3.1}]{#2}\hyperlink{bilagor/#3.1}{#2}\@bilaga[#1]{bilagor/#3}}
+
+\newcommand\thebilagor{Förteckning över bilagor}
