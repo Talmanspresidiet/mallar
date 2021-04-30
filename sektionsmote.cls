@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{sektionsmote}[2020/09/26 Sektionsmotesdokument]
+\ProvidesClass{sektionsmote}[2021/04/28 Sektionsmotesdokument]
 
 % dependencies
 \LoadClass{article}
@@ -12,11 +12,21 @@
 \RequirePackage{comment}
 \RequirePackage{enumitem}
 \RequirePackage{lastpage}
+\RequirePackage{xspace}
+\RequirePackage{titlesec}
+\RequirePackage{csquotes}
 
 % custom paket för autogenererad bilagslista
 \RequirePackage{bilaga}
 
-\pagenumbering{arabic}
+% options för standardrubriker och dokumenttyper
+\newif\if@isprelim@
+\newif\if@isslutlig@
+\newif\if@isprotokoll@ 
+\DeclareOption{prelim}{\@isprelim@true}
+\DeclareOption{slutlig}{\@isslutlig@true}
+\DeclareOption{protokoll}{\@isprotokoll@true}
+\ProcessOptions\relax%
 
 % huvudrubrik
 \DeclareRobustCommand*{\title}[1]{\gdef\@title{#1}}
@@ -38,12 +48,29 @@
     \textbf{\normalsize Tid: \@tid}\\ 
     \textbf{\normalsize Plats: \@plats}\\[0.5cm]
     \end{center}
-}
-\hypersetup{pdftitle={\@stitle}}
+    \hypersetup{pdftitle={\@stitle}}
+  }
+\pagenumbering{arabic}
+  
+
+% standardrubriker, dokumentspecifikt
+\if@isprelim@%
+  \title{Preliminär föredragningslista till sektionsmötet}
+  \shorttitle{Preliminär föredragningslista}
+\fi%
+\if@isslutlig@%
+  \title{Slutlig föredragningslista till sektionsmötet}
+  \shorttitle{Slutlig föredragningslista}
+\fi%
+\if@isprotokoll@%
+  \RequirePackage{digsig}
+  \title{Protokoll fört vid sektionsmöte}
+  \shorttitle{Sektionsmötesprotokoll}
+\fi%
 
 % sidhuvud/fot
 \pagestyle{fancy}
-\fancyhead[L]{\includegraphics[height=4\baselineskip]{./sektionslogo.png}}
+\fancyhead[L]{\includegraphics[height=4\baselineskip]{sektionslogo.png}}
 \cfoot{\thepage\ (\pageref*{LastPage})}
 \newcommand\makeheader{
     \fancyhead[R]{Möte \themote\\\@stitle\\\emph{Fysikteknologsektionen, Chalmers}}
@@ -67,3 +94,25 @@
 \renewcommand{\thesection}{\textsection\arabic{section}}
 \renewcommand{\thesubsection}{\textsection\arabic{section}\alph{subsection}}
 \renewcommand{\thesubsubsection}{\textsection\arabic{section}\alph{subsection} \roman{subsubsection}}
+
+% signaturer
+\newcommand{\signatur}[2]{
+\begin{minipage}[t][8em]{0.33\textwidth}
+    \centering
+    \vspace{1.2em}
+    \begin{Form}
+        \digsigfield{\linewidth}{5.5em}{#1}
+    \end{Form}
+    \vspace*{-0.2em}
+    \hrule
+    \vspace{0.5em}
+    #1\\
+    #2
+\end{minipage}
+}
+
+% Utility commands för protokoll
+\newcommand\tid{\@tid\xspace}
+
+% Undvik spacing runt \paragraph
+\titlespacing{\paragraph}{0pt}{*2.5}{\wordsep}
